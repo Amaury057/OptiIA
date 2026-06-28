@@ -4,9 +4,11 @@ Moteur de scoring multi-critères (idée 4 du CONTEXTE.md).
 Score total = intérêts + affluence + budget
 Le score peut être négatif (mauvaise tolérance à la foule) → créneau exclu.
 
-Contraintes dures (filtrées AVANT le calcul du score) :
-    - Créneau hors fenêtre horaire du visiteur → rejeté
-    - Tarif expo > budget max du visiteur → rejeté
+Contrainte dure appliquée ICI :
+    - Tarif expo > budget max du visiteur → retourne None (exposition exclue)
+
+Les autres contraintes (fenêtre horaire, places disponibles) sont filtrées
+en amont dans recommender.py avant l'appel à score_slot().
 """
 
 from typing import Dict, Optional

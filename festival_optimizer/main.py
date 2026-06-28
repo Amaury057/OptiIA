@@ -182,8 +182,41 @@ def print_creneaux():
 def print_limitations():
     print()
     print(SEP)
-    print("  LIMITES DU MODÈLE")
+    print("  DOCUMENTATION TECHNIQUE DES HYPOTHÈSES")
     print("  " + SEP2)
+
+    print("  1. Construction des données fictives")
+    data_hypotheses = [
+        "Taux d'occupation générés entre 0 % et 100 % pour couvrir tous les cas limites.",
+        "Jauge par créneau fixée entre 50 % et 95 % de la capacité du lieu (sécurité / fluidité).",
+        "Tarif uniforme par exposition : pas de variation tarifaire selon l'heure.",
+    ]
+    for h in data_hypotheses:
+        print(f"  · {h}")
+    print()
+
+    print("  2. Logique de scoring")
+    scoring_hypotheses = [
+        "Intérêts : progression non-linéaire (0/20/35/50/65) pour valoriser les matchs multiples.",
+        "Budget : +30 pts si tarif dans la fourchette, +10 pts si en dessous — contrainte dure si au-dessus.",
+        "Affluence : matrice symétrique — le visiteur fuyant la foule perd autant qu'un amoureux de la foule gagne.",
+        f"Seuil d'exclusion : tout créneau sous {MIN_SCORE} pts est écarté (inadéquation trop forte).",
+    ]
+    for h in scoring_hypotheses:
+        print(f"  · {h}")
+    print()
+
+    print("  3. Critères d'élimination (contraintes dures, avant scoring)")
+    hard_constraints = [
+        "Créneau hors des fenêtres horaires du visiteur → écarté.",
+        "Tarif supérieur au budget max du visiteur → écarté.",
+        "Aucune place restante → écarté.",
+    ]
+    for c in hard_constraints:
+        print(f"  · {c}")
+    print()
+
+    print("  4. Limites connues")
     limits = [
         "Pondérations arbitraires (0/20/35/50/65 intérêts, matrice foule) — non validées terrain.",
         "Affluence figée dans les données : aucune mise à jour temps réel.",
