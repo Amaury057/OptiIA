@@ -133,11 +133,37 @@ La sélection est **gloutonne** : les créneaux sont triés par score décroissa
 
 ---
 
-## Limites du modèle
+## Documentation technique des hypothèses
 
-- Pondérations arbitraires — non issues d'une étude terrain
-- Affluence figée : pas de mise à jour temps réel
-- Sélection gloutonne : itinéraire non globalement optimal
-- Distance entre lieux non calculée (arrondissement uniquement)
-- Granularité horaire de 1h uniquement
-- Pas de gestion des préférences négatives (expositions à éviter)
+### 1. Construction des données fictives
+
+- **Remplissage des salles** : Les taux d'occupation des créneaux ont été générés entre 0 % et 100 % pour couvrir tous les cas limites (salle vide, modérément fréquentée, saturée) et vérifier que le code réagit correctement à chaque palier.
+- **Jauge par créneau** : La capacité max d'un créneau est volontairement inférieure à celle du lieu (entre 50 % et 95 %), pour simuler les contraintes de sécurité et de fluidité lors des rotations.
+- **Tarif uniforme par exposition** : Le prix est identique pour tous les créneaux d'une même exposition ; il n'existe pas de tarif variable selon l'heure ou la saison.
+
+### 2. Logique de scoring
+
+- **Thèmes en commun** : La progression est non-linéaire (0 → 20 → 35 → 50 → 65 pts) pour valoriser les correspondances multiples sans rendre les matchs partiels insignifiants.
+- **Budget** : Un tarif exactement dans la fourchette du visiteur vaut +30 pts ; un tarif en dessous vaut +10 pts (l'expo est accessible mais pas idéale). Le tarif supérieur au budget max est une contrainte dure : l'exposition est écartée avant même le calcul.
+- **Affluence** : La matrice crowd est symétrique — un visiteur fuyant la foule perd autant de points qu'un visiteur cherchant l'ambiance en gagne, et vice-versa.
+- **Seuil minimum à 20 pts** : Un créneau dont le score total est inférieur à 20 pts est écarté, car il ne correspond pas suffisamment au profil du visiteur pour être recommandé.
+
+### 3. Critères d'élimination (contraintes dures)
+
+Avant tout calcul de score, un créneau est éliminé si :
+
+1. Il ne s'inscrit pas dans les fenêtres horaires du visiteur.
+2. Le tarif de l'exposition dépasse le budget maximum du visiteur.
+3. Il ne reste plus aucune place disponible.
+
+### 4. Limites connues
+
+- **Pondérations arbitraires** : les bonus/malus ont été choisis au jugé, sans validation terrain ni étude utilisateur.
+- **Données statiques** : l'affluence est figée dans le code, sans mise à jour en temps réel.
+- **Sélection gloutonne** : l'itinéraire résultant n'est pas globalement optimal (un créneau très bien noté peut bloquer une meilleure combinaison).
+- **Distance non calculée** : seul l'arrondissement est affiché ; le temps de trajet entre deux expositions n'est pas estimé.
+- **Granularité 1h** : impossible de gérer des expositions de 30 min ou 1h30.
+- **Pas de préférences négatives** : un visiteur ne peut pas exclure un thème qu'il n'aime pas.
+
+
+
